@@ -1,33 +1,28 @@
-import pandas as pd
-import plotly.express as px
-
-def plot_tracks(conn):
-    df_tracks = pd.read_sql(
-        '''SELECT tracks.trackid, genres.name AS genre 
-            FROM tracks 
-            LEFT JOIN genres on tracks.genreid = genres.genreid
-        ''', conn
-    )
-    tracks_per_genre = df_tracks.groupby('genre').size().reset_index(name='Count')
-    fig = px.bar(tracks_per_genre, x='genre', y='Count', title='Number of Tracks per Genre')
-    return fig
-
-def plot_customer_states(conn):
-    df_tracks = pd.read_sql(
-        '''SELECT customerid, state AS state
-            FROM customers
-        ''', conn
-    )
-    tracks_per_genre = df_tracks.groupby('state').size().reset_index(name='Count')
-    fig = px.bar(tracks_per_genre, x='state', y='Count', title='Number of Customers per Sate')
-    return fig
-
-def plot_hired_employees(conn):
-    df_employees = pd.read_sql(
-        '''SELECT date(strftime('%Y-%m-1', hiredate)) AS hiremonth
-        FROM employees
-        ''', conn
-    )
-    hires_per_month = df_employees.groupby('hiremonth').size().reset_index(name='Count')
-    fig = px.line(hires_per_month, x='hiremonth', y='Count', title='Number of New Hires')
-    return fig
+aW1wb3J0IHBhbmRhcyBhcyBwZAppbXBvcnQgcGxvdGx5LmV4cHJlc3MgYXMg
+cHgKCmRlZiBwbG90X3RyYWNrcyhjb25uKToKICAgIGRmX3RyYWNrcyA9IHBk
+LnJlYWRfc3FsKAogICAgICAgICcnJ1NFTEVDVCB0cmFja3MudHJhY2tpZCwg
+Z2VucmVzLm5hbWUgQVMgZ2VucmUgCiAgICAgICAgICAgIEZST00gdHJhY2tz
+IAogICAgICAgICAgICBMRUZUIEpPSU4gZ2VucmVzIG9uIHRyYWNrcy5nZW5y
+ZWlkID0gZ2VucmVzLmdlbnJlaWQKICAgICAgICAnJycsIGNvbm4KICAgICkK
+ICAgIHRyYWNrc19wZXJfZ2VucmUgPSBkZl90cmFja3MuZ3JvdXBieSgnZ2Vu
+cmUnKS5zaXplKCkucmVzZXRfaW5kZXgobmFtZT0nQ291bnQnKQogICAgZmln
+ID0gcHguYmFyKHRyYWNrc19wZXJfZ2VucmUsIHg9J2dlbnJlJywgeT0nQ291
+bnQnLCB0aXRsZT0nTnVtYmVyIG9mIFRyYWNrcyBwZXIgR2VucmUnKQogICAg
+cmV0dXJuIGZpZwoKZGVmIHBsb3RfY3VzdG9tZXJfc3RhdGVzKGNvbm4pOgog
+ICAgZGZfdHJhY2tzID0gcGQucmVhZF9zcWwoCiAgICAgICAgJycnU0VMRUNU
+IGN1c3RvbWVyaWQsIHN0YXRlIEFTIHN0YXRlCiAgICAgICAgICAgIEZST00g
+Y3VzdG9tZXJzCiAgICAgICAgJycnLCBjb25uCiAgICApCiAgICB0cmFja3Nf
+cGVyX2dlbnJlID0gZGZfdHJhY2tzLmdyb3VwYnkoJ3N0YXRlJykuc2l6ZSgp
+LnJlc2V0X2luZGV4KG5hbWU9J0NvdW50JykKICAgIGZpZyA9IHB4LmJhcih0
+cmFja3NfcGVyX2dlbnJlLCB4PSdzdGF0ZScsIHk9J0NvdW50JywgdGl0bGU9
+J051bWJlciBvZiBDdXN0b21lcnMgcGVyIFNhdGUnKQogICAgcmV0dXJuIGZp
+ZwoKZGVmIHBsb3RfaGlyZWRfZW1wbG95ZWVzKGNvbm4pOgogICAgZGZfZW1w
+bG95ZWVzID0gcGQucmVhZF9zcWwoCiAgICAgICAgJycnU0VMRUNUIGRhdGUo
+c3RyZnRpbWUoJyVZLSVtLTEnLCBoaXJlZGF0ZSkpIEFTIGhpcmVtb250aAog
+ICAgICAgIEZST00gZW1wbG95ZWVzCiAgICAgICAgJycnLCBjb25uCiAgICAp
+CiAgICBoaXJlc19wZXJfbW9udGggPSBkZl9lbXBsb3llZXMuZ3JvdXBieSgn
+aGlyZW1vbnRoJykuc2l6ZSgpLnJlc2V0X2luZGV4KG5hbWU9J0NvdW50JykK
+ICAgIGZpZyA9IHB4LmxpbmUoaGlyZXNfcGVyX21vbnRoLCB4PSdoaXJlbW9u
+dGgnLCB5PSdDb3VudCcsIHRpdGxlPSdOdW1iZXIgb2YgTmV3IEhpcmVzJykK
+ICAgIHJldHVybiBmaWc=
+bmV3X2NvZGU=
