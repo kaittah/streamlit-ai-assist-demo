@@ -18,6 +18,5 @@ def _extract_function_name(code_string):
     return None
   
 def extract_function_names(docs):
-    print(docs)
     extracted =  [_extract_function_name(doc) for doc in docs]
     return [ex for ex in extracted if ex is not None]
