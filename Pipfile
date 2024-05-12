@@ -11,6 +11,8 @@ replicate = "*"
 transformers = "*"
 scipy = "*"
 pydantic = "*"
+requests = "*"
+pygithub = "*"
 
 [dev-packages]
 ipykernel = "*"
