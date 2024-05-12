@@ -64,16 +64,18 @@ class Agent(BaseModel):
 
 
             if tool == 'Final Answer':
-                output['observations'].append('final')
+                output['observations'].append('Final')
                 return tool_input, output
             if tool not in self.tool_by_names:
-                raise ValueError(f"Unknown tool: {tool}")
+                output['observations'].append('Failed to proceed.')
+                continue
             
             tool_result = self.tool_by_names[tool].use(tool_input)
             output['observations'].append(tool_result)
 
             generated += f"\n{OBSERVATION_TOKEN} {tool_result}"
             previous_responses.append(generated)
+        return tool_input, output
 
     def decide_next_action(self, prompt: str, prompt_template: str) -> str:
         generated = self.llm.generate(prompt, prompt_template, stop=self.stop_pattern)

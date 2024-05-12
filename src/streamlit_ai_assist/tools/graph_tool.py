@@ -1,7 +1,9 @@
 from src.streamlit_ai_assist.tools.base import ToolInterface
+from src.streamlit_ai_assist.data.database_connection import DatabaseConnection
 
 class GraphTool(ToolInterface):
     
+    db: DatabaseConnection
     name: str = "graph_tool"
 
     def get_description(self, docs) -> str:
