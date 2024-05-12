@@ -13,7 +13,7 @@ Question: the input question you must answer
 Thought: comment on what you want to do next and any data you have just collected. Note that if
 in the previous step, a graph was displayed, you must try to execute a sql query that lets you tell
 the numeric trend in the graph.
-Action: the action to take, exactly one element of [{tool_names}]
+Action: the action to take next. This field MUST BE exactly one element of [{tool_names}] with no extra text
 Action Input: the input to the action
 Observation: the result of the action
 ... (this Thought/Action/Action Input/Observation repeats N times, use it until you are sure of the answer

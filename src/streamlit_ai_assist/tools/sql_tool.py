@@ -1,7 +1,6 @@
-import os
 from src.streamlit_ai_assist.tools.base import ToolInterface
-import sqlite3
 import pandas as pd
+from src.streamlit_ai_assist.data.database_connection import DatabaseConnection
 
 def dataframe_to_text_table(df: pd.DataFrame) -> str:
     table_str = df.to_string(index=False)
@@ -16,20 +15,20 @@ def dataframe_to_text_table(df: pd.DataFrame) -> str:
 
     return formatted_table_str
         
-def query_to_text_table(query):
-    db_file = os.environ.get('db_filename')
-    with sqlite3.connect(db_file) as conn:
-        try:
-            df = pd.read_sql(query, conn)
-            return dataframe_to_text_table(df)
-        except Exception as e:
-            return f'The SQL query failed with error: {str(e)}'
+def query_to_text_table(query, db):
+    try:
+        df = db.query(query)
+        return dataframe_to_text_table(df)
+    except Exception as e:
+        return f'The SQL query failed with error: {str(e)}. Choose another Action.'
 
 class SQLTool(ToolInterface):
+    db: DatabaseConnection
     name: str= "sql_tool"
     
     def get_description(self, docs) -> str:
-        return "Executes the given sql query against a given database and returns a table of results"
+        dialect = self.db.get_dialect()
+        return f"Executes the given sql query against a given database with dialect {dialect} and returns a table of results"
 
     def use(self, input_text: str):
-        return query_to_text_table(input_text)
+        return query_to_text_table(input_text, self.db)

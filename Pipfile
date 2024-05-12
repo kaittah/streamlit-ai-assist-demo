@@ -13,6 +13,8 @@ scipy = "*"
 pydantic = "*"
 requests = "*"
 pygithub = "*"
+sqlalchemy = "==1.4"
+snowflake-sqlalchemy = "*"
 
 [dev-packages]
 ipykernel = "*"
