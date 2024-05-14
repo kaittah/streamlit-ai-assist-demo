@@ -19,8 +19,8 @@ class FunctionRewriteAgent(BaseModel):
         generated = self.llm.generate(prompt=code_str, prompt_template=self.prompt_template)
         if len(generated) < 10:
             return self.clean_function(code_str)
-        return generated
+        return self.clean_function(generated)
 
     def clean_function(self, code_str: str):
-        code_str = code_str.replace('```', '').replace('python\n', '')
+        code_str = re.sub(r'^```(?:python\s*)?|```$', '', code_str)
         return code_str + '\n    return fig'

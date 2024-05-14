@@ -18,14 +18,13 @@ PROMPT_TEMPLATE = prompts.DATA_ANALYST_PROMPT
 class Agent(BaseModel):
     llm: ChatLLM
     tools: List[ToolInterface]
-    docs: List[str]
     prompt_template: str= PROMPT_TEMPLATE
-    max_loops: int = 8
+    max_loops: int = 2
     stop_pattern: List[str] = [f'\n{OBSERVATION_TOKEN}', f'\n\t{OBSERVATION_TOKEN}', '<|im_end|>']
 
     @property
     def tool_description(self) -> str:
-        return "\n".join([f"{tool.name}: {tool.get_description(self.docs)}" for tool in self.tools])
+        return "\n".join([f"{tool.name}: {tool.get_description()}" for tool in self.tools])
 
     @property
     def tool_names(self) -> str:
@@ -44,7 +43,8 @@ class Agent(BaseModel):
                 tool_names=self.tool_names,
         )
         prompt_template = prompt_template.replace('#prompt#', '{prompt}')
-        output = {'rendered_prompts': [], 'thoughts': [], 'loop_number': [], 'observations': []}
+        output = {'rendered_prompts': [], 'thoughts': [], 'loop_number': [], 'observations': [],
+                  'tool': [], 'eval': [], 'exec': [], 'print': []}
 
         while num_loops < self.max_loops:
             num_loops += 1
@@ -56,30 +56,57 @@ class Agent(BaseModel):
             generated, tool, tool_input = self.decide_next_action(prompt=question,
                                                                   prompt_template=curr_prompt)
             
+            if not generated:
+                previous_responses[-1] = "I need to think again about what to do"
+                curr_prompt = prompt_template
+                for pr in previous_responses:
+                    curr_prompt = curr_prompt + '<|im_start|>assistant\n' + pr + '<|im_end|>'
 
+                generated, tool, tool_input = self.decide_next_action(prompt=question,
+                    prompt_template=curr_prompt)
+                if not generated:
+                    return tool_input, output
 
             output['rendered_prompts'].append(curr_prompt)
             output['loop_number'].append(num_loops)
             output['thoughts'].append(generated)
+            output['tool'].append(tool)
 
 
             if tool == 'Final Answer':
                 output['observations'].append('Final')
+                output["eval"].append(None)
+                output["exec"].append(None)
+                output["print"].append(None)
                 return tool_input, output
             if tool not in self.tool_by_names:
                 output['observations'].append('Failed to proceed.')
+                output["eval"].append(None)
+                output["exec"].append(None)
+                output["print"].append(None)
                 continue
             
             tool_result = self.tool_by_names[tool].use(tool_input)
-            output['observations'].append(tool_result)
+            tool_result_observation = tool_result["observation"]
+            output['observations'].append(tool_result_observation)
+            output["eval"].append(tool_result.get("eval"))
+            output["exec"].append(tool_result.get("exec"))
+            output["print"].append(tool_result.get("print"))
 
-            generated += f"\n{OBSERVATION_TOKEN} {tool_result}"
+            generated += f"\n{OBSERVATION_TOKEN} {tool_result_observation}"
             previous_responses.append(generated)
         return tool_input, output
 
     def decide_next_action(self, prompt: str, prompt_template: str) -> str:
         generated = self.llm.generate(prompt, prompt_template, stop=self.stop_pattern)
         tool, tool_input = self._parse(generated)
+        try_num = 0
+        while not tool and try_num < 3:
+            generated = self.llm.generate(prompt, prompt_template, stop=self.stop_pattern)
+            tool, tool_input = self._parse(generated)
+            try_num += 1
+        if not tool:
+            return None, None, None
         return generated, tool, tool_input
 
     def _parse(self, generated: str) -> Tuple[str, str]:
@@ -88,7 +115,7 @@ class Agent(BaseModel):
         regex = r"Action: [\[]?(.*?)[\]]?[\n]*Action Input:[\s]*(.*)"
         match = re.search(regex, generated, re.DOTALL)
         if not match:
-            raise ValueError(f"Output of LLM is not parsable for next tool use: `{generated}`")
+            return None, None
         tool = match.group(1).strip()
         tool_input = match.group(2)
         return tool, tool_input.strip(" ").strip('"')
