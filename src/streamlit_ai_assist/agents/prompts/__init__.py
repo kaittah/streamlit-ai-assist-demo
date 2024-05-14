@@ -1,1 +1,2 @@
 from .data_analyst_prompt import DATA_ANALYST_PROMPT
+from .function_rewrite_prompt import FUNCTION_REWRITE_PROMPT

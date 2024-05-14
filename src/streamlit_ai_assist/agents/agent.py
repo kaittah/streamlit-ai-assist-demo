@@ -20,7 +20,7 @@ class Agent(BaseModel):
     tools: List[ToolInterface]
     docs: List[str]
     prompt_template: str= PROMPT_TEMPLATE
-    max_loops: int = 15
+    max_loops: int = 8
     stop_pattern: List[str] = [f'\n{OBSERVATION_TOKEN}', f'\n\t{OBSERVATION_TOKEN}', '<|im_end|>']
 
     @property

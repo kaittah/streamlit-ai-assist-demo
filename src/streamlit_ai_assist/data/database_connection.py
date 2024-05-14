@@ -17,4 +17,7 @@ class DatabaseConnection():
         return self.conn.query(sql)
     
     def connect(self):
-        return self.conn.engine.raw_connection()
+        if isinstance(self.conn, SnowflakeConnection):
+            return self.conn.raw_connection
+        else:
+            return self.conn.engine.raw_connection()
