@@ -18,24 +18,29 @@ import plotly.graph_objects as go
 import plotly.express as px
 
 
-db = DatabaseConnection(name="chinook_sqlite")
+db = DatabaseConnection(name="tastybytes_snowflake")
 graphing_file = 'graphing.py'
 graphing_lib = graphing_file.replace('.py', '')
 
 
-schema_tool = SchemaTool(db=db)
+schema_tool = SchemaTool()
 try:
-    st.write(schema_tool.use("tracks"))
-except:
+    st.write(schema_tool.use("menu", db))
+except Exception as e:
+
     st.write("Schema Tool Failed")
+    st.error(str(e))
 
-graph_tool = GraphTool(db=db, docs=python_to_docs.python_to_docs(graphing_file))
+
+graph_tool = GraphTool(docs=python_to_docs.python_to_docs(graphing_file))
 try:
-    st.write(graph_tool.use("plot_customer_states"))
-except:
+    st.write(graph_tool.use("plot_customer_states", db))
+except Exception as e:
     st.write("Graph Tool Failed")
+    st.error(str(e))
 
-new_graph_tool = NewGraphTool(db=db, docs=python_to_docs.python_to_docs(graphing_file))
+
+new_graph_tool = NewGraphTool(docs=python_to_docs.python_to_docs(graphing_file))
 try:
     st.write(new_graph_tool.use("""
 def plot_tracks(conn):
@@ -48,24 +53,28 @@ def plot_tracks(conn):
     tracks_per_genre = df_tracks.groupby('genre').size().reset_index(name='Count')
     fig = px.bar(tracks_per_genre, x='genre', y='Count', title='Number of Tracks per Genre')
     return fig
-"""))
-except:
+""", db))
+except Exception as e:
     st.write("New Graph Tool Failed")
+    st.error(str(e))
 
-show_tables_tool = ShowTablesTool(db=db)
+show_tables_tool = ShowTablesTool()
 try:
-    st.write(show_tables_tool.use("tracks,invoice_items"))
-except:
+    st.write(show_tables_tool.use("menu", db))
+except Exception as e:
     st.write("Show Tables Tool Failed")
+    st.error(str(e))
 
-show_unique_tool = ShowUniqueTool(db=db)
+show_unique_tool = ShowUniqueTool()
 try:
-    st.write(show_unique_tool.use("(tracks, genreid)"))
-except:
+    st.write(show_unique_tool.use("(menu, menu_type)", db))
+except Exception as e:
     st.write("Show Unique Failed")
+    st.error(str(e))
 
-sql_tool = SQLTool(db=db)
+sql_tool = SQLTool()
 try:
-    st.write(sql_tool.use("Select 1 GROUP BY 1"))
-except:
+    st.write(sql_tool.use("Select 1 GROUP BY 1", db))
+except Exception as e:
     st.write("SQL Tool Failed")
+    st.error(str(e))

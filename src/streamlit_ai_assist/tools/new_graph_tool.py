@@ -19,7 +19,6 @@ def format_function(messy_string):
 
 class NewGraphTool(ToolInterface):
     
-    db: DatabaseConnection
     name: str = "new_graph_tool"
     docs: list[str] = []
 
@@ -35,9 +34,9 @@ return: `fig`: an instance of plotly.graph_objs.Figure. The function MUST end wi
 """
         return description
     
-    def test_code(self, input_text: str):
+    def test_code(self, input_text: str, db):
         try:
-            conn = self.db.connect()
+            conn = db.connect()
             cleaned_code, function_call = format_function(input_text)
             exec(cleaned_code)
             fig = eval(function_call)
@@ -45,8 +44,8 @@ return: `fig`: an instance of plotly.graph_objs.Figure. The function MUST end wi
         except Exception as e:
             return str(e), None, None
 
-    def use(self, input_text: str):
-        status, cleaned_code, function_call = self.test_code(input_text)
+    def use(self, input_text: str, db: DatabaseConnection):
+        status, cleaned_code, function_call = self.test_code(input_text, db)
         if status == "OK":
             return dict(observation=f"Returned the new figure", tool=self.name,
                         exec=cleaned_code, eval=function_call)
