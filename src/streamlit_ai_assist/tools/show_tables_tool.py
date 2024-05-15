@@ -25,14 +25,13 @@ def get_tables(db):
 
 class ShowTablesTool(ToolInterface):
 
-    db: DatabaseConnection
     name: str= "show_tables_tool"
     docs: list[str] = []
 
     def get_description(self) -> str:
         return """Given a max number of tables to display (suggested: 50), shows which tables exist in the database. The input must be an integer, e.g. 50. """
 
-    def use(self, input_text: str):
-        result = get_tables(self.db)
+    def use(self, input_text: str, db):
+        result = get_tables(db)
         return dict(observation=result, tool=self.name)
 

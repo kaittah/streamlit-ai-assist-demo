@@ -15,6 +15,7 @@ requests = "*"
 pygithub = "*"
 sqlalchemy = "==1.4"
 snowflake-sqlalchemy = "*"
+snowflake-snowpark-python = "*"
 
 [dev-packages]
 ipykernel = "*"

@@ -28,18 +28,18 @@ can only be used to summarize data. Choose another action. """
         return "ERROR", f'The SQL query failed with error: {str(e)}. Choose another Action.'
 
 class SQLTool(ToolInterface):
-    db: DatabaseConnection
     name: str= "sql_tool"
     docs: list[str] = []
     
     def get_description(self) -> str:
-        dialect = self.db.get_dialect()
+        db = DatabaseConnection(self.db_name)
+        dialect = db.get_dialect()
         return f"""Executes the given sql query against a given database with dialect {dialect} and returns a table of results.
 You must ONLY use this with queries with GROUP BY clauses in order to answer a question or describe a graph.
 """
 
-    def use(self, input_text: str):
-        status, table = query_to_text_table(input_text, self.db)
+    def use(self, input_text: str, db):
+        status, table = query_to_text_table(input_text, db)
         if status == "OK":
             return dict(observation=table, tool=self.name, print=table)
         else:

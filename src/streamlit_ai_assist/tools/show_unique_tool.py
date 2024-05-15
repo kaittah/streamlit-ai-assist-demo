@@ -20,7 +20,7 @@ def query_to_text_table(query, db):
         return "ERROR", f'Failed with error: {str(e)}. Choose another Action.'
 
 class ShowUniqueTool(ToolInterface):
-    db: DatabaseConnection
+
     name: str= "show_unique_tool"
     docs: list[str] = []
     
@@ -30,12 +30,12 @@ Useful for showing which values of a categorical value exist so that filters can
 MUST use the format (<table name>, <column name>). E.g. (zoo, species)
 """
 
-    def use(self, input_text: str):
+    def use(self, input_text: str, db):
         match = re.findall(r'\((\w+),\s*(\w+)\)', input_text)[0]
         table_name = match[0]
         column_name = match[1]
         query = f"SELECT DISTINCT {column_name} FROM {table_name} LIMIT 50"
-        status, table = query_to_text_table(query, self.db)
+        status, table = query_to_text_table(query, db)
         if status == "OK":
             return dict(observation=table, tool=self.name, print=table)
         else:

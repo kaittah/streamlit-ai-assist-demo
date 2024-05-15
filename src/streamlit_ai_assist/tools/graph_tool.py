@@ -3,7 +3,6 @@ from src.streamlit_ai_assist.data.database_connection import DatabaseConnection
 
 class GraphTool(ToolInterface):
     
-    db: DatabaseConnection
     name: str = "graph_tool"
     docs: list[str] = []
 
@@ -27,7 +26,7 @@ The input MUST BE exactly one name of the available functions:
                 return True
         return False
 
-    def use(self, input_text: str):
+    def use(self, input_text: str, db: DatabaseConnection):
         function_name = input_text.strip().split('(')[0]
         if self.check_function_name(function_name):
             return dict(observation=f"Displayed graph with function name {input_text}",
