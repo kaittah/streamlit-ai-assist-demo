@@ -14,15 +14,20 @@ def format_function(messy_string):
     function_name = re.search(r'def\s+(\w+\(conn\))', clean_str, re.DOTALL)
     if function_name:
         function_name = function_name.group(1)
-    return [clean_str, function_name]
-
+        return [clean_str, function_name]
+    else:
+        function_name = re.search(r'def\s+(\w+\(conn\))', messy_string, re.DOTALL)
+        if function_name:
+            function_name = function_name.group(1)
+            return [messy_string, function_name]
+    raise Exception(f"Graph was not properly formatted")
 
 class NewGraphTool(ToolInterface):
     
     name: str = "new_graph_tool"
     docs: list[str] = []
 
-    def get_description(self) -> str:
+    def get_description(self, db) -> str:
         description= """Executes the input Python code, returning `fig`, a figure with
 relevant information. The input to this action MUST be Python code and MUST follow the following specifications:
 ###
@@ -35,6 +40,7 @@ return: `fig`: an instance of plotly.graph_objs.Figure. The function MUST end wi
         return description
     
     def test_code(self, input_text: str, db):
+        cleaned_code = ""
         try:
             conn = db.connect()
             cleaned_code, function_call = format_function(input_text)
@@ -42,7 +48,7 @@ return: `fig`: an instance of plotly.graph_objs.Figure. The function MUST end wi
             fig = eval(function_call)
             return 'OK', cleaned_code, function_call
         except Exception as e:
-            return str(e), None, None
+            return str(e) + str(cleaned_code), None, None
 
     def use(self, input_text: str, db: DatabaseConnection):
         status, cleaned_code, function_call = self.test_code(input_text, db)
