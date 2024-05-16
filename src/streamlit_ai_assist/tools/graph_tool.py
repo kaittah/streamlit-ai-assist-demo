@@ -6,7 +6,7 @@ class GraphTool(ToolInterface):
     name: str = "graph_tool"
     docs: list[str] = []
 
-    def get_description(self) -> str:
+    def get_description(self, db) -> str:
         description= """Given a function name, 
 executes the below function with that name and displays the figure to the end customer.
 Using the functions below, you can infer names of tables in the database and relationships you

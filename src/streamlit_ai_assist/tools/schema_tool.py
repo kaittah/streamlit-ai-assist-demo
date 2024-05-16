@@ -10,22 +10,16 @@ def get_schema(table_name, db):
         schema = f'TABLE {table_name} EXISTS WITH SCHEMA:\n'
         if sql_driver == 'snowflake':
             query = f'DESC table {table_name}'
-            conn = db.connect()
-            cur = conn.cursor()
-            cur.execute(query)
-            results = cur.fetchall()
-            conn.close()
-            for row in results:
-                schema = schema + f'{row[0]} {row[1]}\n'
         else:
             query = f'PRAGMA table_info({table_name})'
-            query= "select 1"
-            schema_df = db.query(query)
-            for index, row in schema_df.iterrow():
-                schema = schema + f'{row[0]} {row[1]}\n'
+        conn = db.connect()
+        cur = conn.cursor()
+        cur.execute(query)
+        results = cur.fetchall()
+        for row in results:
+            schema = schema + f'{row[0]} {row[1]}\n'
         return schema
     except Exception as e:
-        return str(e) + query
         return f'TABLE {table_name} DOES NOT EXIST\n'
     
     
@@ -36,7 +30,7 @@ class SchemaTool(ToolInterface):
     name: str= "schema_tool"
     docs: list[str] = []
 
-    def get_description(self) -> str:
+    def get_description(self, db) -> str:
         return """Given a comma separated list of database table names, returns the schema of those tables.The input
 must be one of the formats: <table_name> OR <table_name_1>,<table_name_2>,...,<table_name_n>"""
 

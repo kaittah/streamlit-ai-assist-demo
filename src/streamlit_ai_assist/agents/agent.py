@@ -7,6 +7,7 @@ from pydantic import BaseModel
 from src.streamlit_ai_assist.agents.llm import ChatLLM
 from src.streamlit_ai_assist.agents import prompts
 from src.streamlit_ai_assist.tools.base import ToolInterface
+from src.streamlit_ai_assist.data.database_connection import DatabaseConnection
 
 
 FINAL_ANSWER_TOKEN = "Final Answer:"
@@ -18,13 +19,17 @@ PROMPT_TEMPLATE = prompts.DATA_ANALYST_PROMPT
 class Agent(BaseModel):
     llm: ChatLLM
     tools: List[ToolInterface]
+    db: DatabaseConnection
     prompt_template: str= PROMPT_TEMPLATE
     max_loops: int = 2
     stop_pattern: List[str] = [f'\n{OBSERVATION_TOKEN}', f'\n\t{OBSERVATION_TOKEN}', '<|im_end|>']
 
+    class Config:
+        arbitrary_types_allowed=True
+
     @property
     def tool_description(self) -> str:
-        return "\n".join([f"{tool.name}: {tool.get_description()}" for tool in self.tools])
+        return "\n".join([f"{tool.name}: {tool.get_description(self.db)}" for tool in self.tools])
 
     @property
     def tool_names(self) -> str:
@@ -86,7 +91,7 @@ class Agent(BaseModel):
                 output["print"].append(None)
                 continue
             
-            tool_result = self.tool_by_names[tool].use(tool_input)
+            tool_result = self.tool_by_names[tool].use(tool_input, self.db)
             tool_result_observation = tool_result["observation"]
             output['observations'].append(tool_result_observation)
             output["eval"].append(tool_result.get("eval"))

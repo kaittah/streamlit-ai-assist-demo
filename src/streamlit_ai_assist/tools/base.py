@@ -8,7 +8,7 @@ class ToolInterface(BaseModel):
     class Config:
         arbitrary_types_allowed = True
 
-    def get_description(self) -> str:
+    def get_description(self, db) -> str:
         raise NotImplementedError("get_description() method not implemented")  # Implement in subclass
     
     def use(self, input_text: str, db) -> dict[str]:

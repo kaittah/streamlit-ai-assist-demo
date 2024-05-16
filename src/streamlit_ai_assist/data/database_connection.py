@@ -6,18 +6,18 @@ class DatabaseConnection():
     def __init__(self, name: str):
         self.name = name
         self.conn = st.connection(self.name)
+        if isinstance(self.conn, SnowflakeConnection):
+            self.raw_connection = self.conn.raw_connection
+            self.dialect = "snowflake"
+        else:
+            self.raw_connection = self.conn.engine.raw_connection()
+            self.dialect = self.conn.engine.dialect.name
 
     def get_dialect(self):
-        if isinstance(self.conn, SnowflakeConnection):
-            return "snowflake"
-        else:
-            return self.conn.engine.dialect.name
+        return self.dialect
         
     def query(self, sql):
         return self.conn.query(sql)
     
     def connect(self):
-        if isinstance(self.conn, SnowflakeConnection):
-            return self.conn.raw_connection
-        else:
-            return self.conn.engine.raw_connection()
+        return self.raw_connection

@@ -24,7 +24,7 @@ class ShowUniqueTool(ToolInterface):
     name: str= "show_unique_tool"
     docs: list[str] = []
     
-    def get_description(self) -> str:
+    def get_description(self, db) -> str:
         return f"""Given a table name and a column, returns which unique values exist in the column of the table.
 Useful for showing which values of a categorical value exist so that filters can be created down the line. Input to this tool
 MUST use the format (<table name>, <column name>). E.g. (zoo, species)

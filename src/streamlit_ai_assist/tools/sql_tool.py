@@ -31,8 +31,7 @@ class SQLTool(ToolInterface):
     name: str= "sql_tool"
     docs: list[str] = []
     
-    def get_description(self) -> str:
-        db = DatabaseConnection(self.db_name)
+    def get_description(self, db) -> str:
         dialect = db.get_dialect()
         return f"""Executes the given sql query against a given database with dialect {dialect} and returns a table of results.
 You must ONLY use this with queries with GROUP BY clauses in order to answer a question or describe a graph.
