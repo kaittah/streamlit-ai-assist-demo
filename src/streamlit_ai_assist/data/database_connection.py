@@ -1,8 +1,9 @@
 from streamlit.connections import SnowflakeConnection
 import streamlit as st
 
+
 class DatabaseConnection():
-    
+
     def __init__(self, name: str):
         self.name = name
         self.conn = st.connection(self.name)
@@ -15,9 +16,9 @@ class DatabaseConnection():
 
     def get_dialect(self):
         return self.dialect
-        
+
     def query(self, sql):
         return self.conn.query(sql)
-    
+
     def connect(self):
         return self.raw_connection

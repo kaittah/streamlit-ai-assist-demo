@@ -3,7 +3,6 @@ import re
 from typing import List, Dict, Tuple
 
 from pydantic import BaseModel
-import streamlit as st
 
 from src.streamlit_ai_assist.agents.llm import ChatLLM
 from src.streamlit_ai_assist.agents import prompts
@@ -24,12 +23,12 @@ class DataAnalystAgent(BaseModel):
     llm: ChatLLM
     tools: List[ToolInterface]
     db: DatabaseConnection
-    max_loops: int = 2
+    max_loops: int = 8
     stop_pattern: List[str] = [f'\n{OBSERVATION_TOKEN}', f'\n\t{OBSERVATION_TOKEN}', '<|im_end|>']
     conversation_history: List[dict] = []
 
     class Config:
-        arbitrary_types_allowed=True
+        arbitrary_types_allowed = True
 
     @property
     def tool_description(self) -> str:
@@ -42,7 +41,7 @@ class DataAnalystAgent(BaseModel):
     @property
     def tool_by_names(self) -> Dict[str, ToolInterface]:
         return {tool.name: tool for tool in self.tools}
-    
+
     def get_prompt_template(self, add_thought_token=False):
         prompt = [PROMPT_TEMPLATE]
         for dict_message in self.conversation_history:
@@ -57,10 +56,10 @@ class DataAnalystAgent(BaseModel):
             prompt.append("")
         prompt_str = "\n".join(prompt)
         return prompt_str.format(
-                today = datetime.date.today(),
+                today=datetime.date.today(),
                 tool_description=self.tool_description,
                 tool_names=self.tool_names,)
-    
+
     def add_to_conversation_history(self, role, message):
         self.conversation_history.append(dict(role=role, content=message))
 
@@ -83,9 +82,11 @@ class DataAnalystAgent(BaseModel):
             logger.info(generated)
             logger.info(tool)
             logger.info(tool_input)
-            
+
             if not generated:
-                self.edit_latest_conversation_history("Thought: I need to think again about what to do")
+                self.edit_latest_conversation_history(
+                    "Thought: I need to think again about what to do"
+                )
                 prompt = self.get_prompt_template(add_thought_token=True)
                 generated, tool, tool_input = self.decide_next_action(
                         prompt=prompt)
@@ -115,7 +116,7 @@ class DataAnalystAgent(BaseModel):
                 output_row["dataframe"] = None
                 yield output_row
                 continue
-            
+
             tool_result = self.tool_by_names[tool].use(tool_input, self.db)
             tool_result_observation = tool_result["observation"]
             output_row['observation'] = tool_result_observation
@@ -123,11 +124,12 @@ class DataAnalystAgent(BaseModel):
             output_row["exec"] = tool_result.get("exec")
             output_row["print"] = tool_result.get("print")
             output_row["dataframe"] = tool_result.get("dataframe")
-            
-            self.add_to_conversation_history("data_analyst", generated)
-            self.add_to_conversation_history("data_analyst", f"\n{OBSERVATION_TOKEN} {tool_result_observation}")
-            yield output_row
 
+            self.add_to_conversation_history("data_analyst", generated)
+            self.add_to_conversation_history(
+                "data_analyst", f"\n{OBSERVATION_TOKEN} {tool_result_observation}"
+            )
+            yield output_row
 
     def decide_next_action(self, prompt: str) -> str:
         generated = self.llm.generate(prompt, r"{prompt}", stop=self.stop_pattern)
