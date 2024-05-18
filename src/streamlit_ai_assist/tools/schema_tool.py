@@ -1,8 +1,5 @@
-import streamlit as st
-import os
 from src.streamlit_ai_assist.tools.base import ToolInterface
-import sqlite3
-from src.streamlit_ai_assist.data.database_connection import DatabaseConnection
+
 
 def get_schema(table_name, db):
     sql_driver = db.get_dialect()
@@ -19,19 +16,17 @@ def get_schema(table_name, db):
         for row in results:
             schema = schema + f'{row[0]} {row[1]}\n'
         return schema
-    except Exception as e:
+    except Exception:
         return f'TABLE {table_name} DOES NOT EXIST\n'
-    
-    
 
 
 class SchemaTool(ToolInterface):
-
-    name: str= "schema_tool"
+    name: str = "schema_tool"
     docs: list[str] = []
 
     def get_description(self, db) -> str:
-        return """Given a comma separated list of database table names, returns the schema of those tables.The input
+        return """Given a comma separated list of database table names,
+returns the schema of those tables. The input
 must be one of the formats: <table_name> OR <table_name_1>,<table_name_2>,...,<table_name_n>"""
 
     def use(self, input_text: str, db):
@@ -40,4 +35,3 @@ must be one of the formats: <table_name> OR <table_name_1>,<table_name_2>,...,<t
         for table_name in table_names:
             result = result + get_schema(table_name, db)
         return dict(observation=result, tool=self.name)
-

@@ -1,9 +1,7 @@
-import datetime
 import re
-from typing import List, Dict, Tuple
+from typing import List, Tuple
 
 from pydantic import BaseModel
-import streamlit as st
 
 from src.streamlit_ai_assist.agents.llm import ChatLLM
 from src.streamlit_ai_assist.agents import prompts
@@ -19,15 +17,17 @@ THOUGHT_TOKEN = "Thought:"
 class ConversationalAgent(BaseModel):
     llm: ChatLLM
     general_description: str
-    prompt_template: str= PROMPT_TEMPLATE
+    prompt_template: str = PROMPT_TEMPLATE
     max_loops: int = 2
     data_analyst: DataAnalystAgent
-    stop_pattern: List[str] = [f'\n{OBSERVATION_TOKEN}', f'\n\t{OBSERVATION_TOKEN}', '<|im_end|>']
+    stop_pattern: List[str] = [
+        f'\n{OBSERVATION_TOKEN}', f'\n\t{OBSERVATION_TOKEN}', '<|im_end|>'
+    ]
     conversation_history: List[dict] = []
     data_analysis_results: List[dict] = []
 
     class Config:
-        arbitrary_types_allowed=True
+        arbitrary_types_allowed = True
 
     def get_prompt_template(self, add_thought_token=False):
         prompt = [PROMPT_TEMPLATE]
@@ -61,7 +61,7 @@ class ConversationalAgent(BaseModel):
         tool = match.group(1).strip()
         tool_input = match.group(2)
         return tool, tool_input.strip(" ").strip('"')
-    
+
     def decide_next_action(self, prompt: str) -> str:
         print(prompt)
         generated = self.llm.generate(prompt, r"{prompt}", stop=self.stop_pattern)
@@ -74,7 +74,7 @@ class ConversationalAgent(BaseModel):
             return generated, "ask for analysis", tool_input
         else:
             return generated, "Tool must be one of ('respond to user', 'ask for analysis')", None
-   
+
     def run(self, query):
         self.add_to_conversation_history("user", query)
         num_loops = 0
@@ -88,40 +88,34 @@ class ConversationalAgent(BaseModel):
             generated, tool, tool_input = self.decide_next_action(prompt=prompt)
             self.add_to_conversation_history("assistant", generated)
             print('TOOL', tool)
-            if tool is None: # final answer reached
+            if tool is None:  # final answer reached
                 self.add_to_conversation_history("assistant", tool_input)
                 print("exiting run")
                 return tool_input, self.data_analysis_results
             elif tool == "ask for analysis":
                 data_analysis_results = list(self.data_analyst.run(tool_input))
-                to_summarize = [r[k].split("Action:")[0] for r in data_analysis_results for k in r if k in ("thought", "observation")]
+                to_summarize = [
+                    r[k].split("Action:")[0] for r in data_analysis_results
+                    for k in r if k in ("thought", "observation")
+                ]
                 tool_result = '----'.join(to_summarize)
                 self.data_analysis_results = data_analysis_results
             else:
                 tool_result = None
             if tool_result:
-                self.add_to_conversation_history("assistant", f"\n{OBSERVATION_TOKEN} {tool_result}")
-                self.add_to_conversation_history("assistant", f"\n{THOUGHT_TOKEN} I can now respond to the user")
+                self.add_to_conversation_history(
+                    "assistant", f"\n{OBSERVATION_TOKEN} {tool_result}"
+                )
+                self.add_to_conversation_history(
+                    "assistant", f"\n{THOUGHT_TOKEN} I can now respond to the user"
+                )
                 self.add_to_conversation_history("assistant", "Action: respond to user")
             else:
-                self.add_to_conversation_history("assistant", f"\n{THOUGHT_TOKEN} Tool must be one of ('respond to user', 'ask for analysis')")
+                self.add_to_conversation_history(
+                    "assistant",
+                    f"\n{THOUGHT_TOKEN} Tool must be one of ('respond to user', 'ask for analysis')"
+                )
         return '\n'.join([c['content'] for c in self.conversation_history]), []
-    # def get_prompt(self, content_to_summarize, conversation_history):
-    #     system_prompt = self.prompt_template.format(
-    #             general_description=self.general_description
-    #     )
-    #     prompt = [system_prompt]
-    #     for dict_message in conversation_history:
-    #         if dict_message["role"] == "user":
-    #             prompt.append("<|im_start|>user\n" + dict_message["content"] + "<|im_end|>")
-    #         elif dict_message["role"] == "asssistant":
-    #             prompt.append("<|im_start|>assistant\n" + dict_message["content"] + "<|im_end|>")
-    #     if content_to_summarize:
-    #         prompt.append("<|im_start|>assistant\n" + content_to_summarize + "<|im_end|>")
-    #     prompt.append("<|im_start|>assistant")
-    #     prompt.append("")
-    #     prompt_str = "\n".join(prompt)
-    #     return prompt_str
 
     def generate(self, content_to_summarize="", conversation_history=[]):
         generated = self.llm.generate(

@@ -1,6 +1,4 @@
-import datetime
 import re
-from typing import List, Dict, Tuple
 
 from pydantic import BaseModel
 
@@ -13,7 +11,7 @@ PROMPT_TEMPLATE = prompts.FUNCTION_REWRITE_PROMPT
 
 class FunctionRewriteAgent(BaseModel):
     llm: ChatLLM
-    prompt_template: str= PROMPT_TEMPLATE
+    prompt_template: str = PROMPT_TEMPLATE
 
     def rewrite_function(self, code_str: str):
         generated = self.llm.generate(prompt=code_str, prompt_template=self.prompt_template)

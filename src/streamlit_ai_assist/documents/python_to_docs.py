@@ -1,7 +1,7 @@
 def python_to_docs(filepath):
     with open(filepath, "r") as f:
         file_content = f.read()
-    
+
     docs = []
     start_index = 0
     while start_index != -1:
@@ -15,7 +15,7 @@ def python_to_docs(filepath):
             docs.append(file_content[found_index:next_found_index].strip())
         elif found_index > -1:
             docs.append(file_content[found_index:].strip())
-        
+
         start_index = next_found_index
-    
+
     return docs
