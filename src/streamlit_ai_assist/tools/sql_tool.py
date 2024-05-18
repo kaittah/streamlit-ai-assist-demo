@@ -11,21 +11,21 @@ def dataframe_to_text_table(df: pd.DataFrame) -> str:
     formatted_table_str = '\n'.join(formatted_table)
     return formatted_table_str
         
-def query_to_text_table(query, db):
+def query_to_dataframe(query, db):
     if 'group by' not in query.lower():
-        return "ERROR", "Error: The SQL query does not include a group by clause. Too many rows would be returned."
+        return "ERROR", None, "Error: The SQL query does not include a group by clause. Too many rows would be returned."
     try:
         df = db.query(query)
         n_rows = df.shape[0]
         n_cols = df.shape[1]
         if n_rows < 20 and n_cols < 4:
-            return "OK", dataframe_to_text_table(df)
+            return "OK", df, dataframe_to_text_table(df)
         else:
-            return "ERROR", f"""The resulting table is too large.
+            return "ERROR", None,  f"""The resulting table is too large.
 The dimensions are {n_rows} rows by {n_cols} cols. There can be at most 20 rows and 4 columns. This tool
 can only be used to summarize data. Choose another action. """
     except Exception as e:
-        return "ERROR", f'The SQL query failed with error: {str(e)}. Choose another Action.'
+        return "ERROR", None, f'The SQL query failed with error: {str(e)}. Choose another Action.'
 
 class SQLTool(ToolInterface):
     name: str= "sql_tool"
@@ -38,8 +38,8 @@ You must ONLY use this with queries with GROUP BY clauses in order to answer a q
 """
 
     def use(self, input_text: str, db):
-        status, table = query_to_text_table(input_text, db)
+        status, table_df, table_text = query_to_dataframe(input_text, db)
         if status == "OK":
-            return dict(observation=table, tool=self.name, print=table)
+            return dict(observation=table_text, tool=self.name, print=table_text)
         else:
-            return dict(observation=table, tool=self.name)
+            return dict(observation=table_text, tool=self.name)

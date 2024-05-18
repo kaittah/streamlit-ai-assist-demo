@@ -12,12 +12,12 @@ def dataframe_to_text_table(df: pd.DataFrame) -> str:
     formatted_table_str = '\n'.join(formatted_table)
     return formatted_table_str
         
-def query_to_text_table(query, db):
+def query_to_dataframe(query, db):
     try:
         df = db.query(query)
-        return "OK", dataframe_to_text_table(df)
+        return "OK", df, dataframe_to_text_table(df)
     except Exception as e:
-        return "ERROR", f'Failed with error: {str(e)}. Choose another Action.'
+        return "ERROR", None, f'Failed with error: {str(e)}. Choose another Action.'
 
 class ShowUniqueTool(ToolInterface):
 
@@ -35,8 +35,8 @@ MUST use the format (<table name>, <column name>). E.g. (zoo, species)
         table_name = match[0]
         column_name = match[1]
         query = f"SELECT DISTINCT {column_name} FROM {table_name} LIMIT 50"
-        status, table = query_to_text_table(query, db)
+        status, table_df, table_text = query_to_dataframe(query, db)
         if status == "OK":
-            return dict(observation=table, tool=self.name, print=table)
+            return dict(observation=table_text, tool=self.name, print=table_text, dataframe=table_df)
         else:
-            return dict(observation=table, tool=self.name)
+            return dict(observation=table_text, tool=self.name)
