@@ -28,6 +28,4 @@ the numeric trend in the graph.
 schema or else choose a different action
 
 <|im_end|>
-<|im_start|>user
-#prompt#<|im_end|>
 """
