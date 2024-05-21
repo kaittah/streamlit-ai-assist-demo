@@ -42,3 +42,13 @@ def plot_menu_type_distribution(conn):
               color_discrete_sequence=px.colors.qualitative.Pastel)
     fig.update_layout(title="Distribution of Menu Types")
     return fig
+
+
+def plot_cost_distribution(conn):
+    # Function to plot distribution of costs
+    dataframe = pd.read_sql("SELECT cost_of_goods_usd FROM menu", conn)
+    dataframe.columns = dataframe.columns.str.lower()
+    fig = px.histogram(dataframe, x="cost_of_goods_usd", nbins=30)
+    fig.update_layout(title="Distribution of Cost of Goods")
+    return fig
+    return fig
