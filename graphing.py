@@ -31,3 +31,5 @@ def plot_hired_employees(conn):
     hires_per_month = df_employees.groupby('hiremonth').size().reset_index(name='Count')
     fig = px.line(hires_per_month, x='hiremonth', y='Count', title='Number of New Hires')
     return fig
+
+testing
