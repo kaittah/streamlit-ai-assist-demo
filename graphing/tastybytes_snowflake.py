@@ -1,5 +1,8 @@
 import plotly.graph_objects as go
+import plotly.express as px
 import pandas as pd
+
+#  Graphs particular to the Tastybytest Snowflake Sample Dataset
 
 def plot_menu_items_by_category(conn):
     # Function to plot count of menu items by category
@@ -29,7 +32,13 @@ def plot_menu_type_distribution(conn):
     # Function to plot distribution of menu types
     dataframe = pd.read_sql("SELECT * FROM menu", conn)
     dataframe.columns = dataframe.columns.str.lower()
-    menu_type_counts = dataframe['menu_type'].value_counts()
-    fig = go.Figure(data=[go.Pie(labels=menu_type_counts.index, values=menu_type_counts.values)])
+    menu_type_counts = (
+        dataframe['menu_type']
+        .value_counts()
+        .rename("count")
+        .reset_index()
+    )
+    fig = px.pie(menu_type_counts, names='menu_type', values='count',
+              color_discrete_sequence=px.colors.qualitative.Pastel)
     fig.update_layout(title="Distribution of Menu Types")
     return fig
