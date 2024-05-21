@@ -31,3 +31,16 @@ def plot_hired_employees(conn):
     hires_per_month = df_employees.groupby('hiremonth').size().reset_index(name='Count')
     fig = px.line(hires_per_month, x='hiremonth', y='Count', title='Number of New Hires')
     return fig
+
+def plot_profit_by_category(conn):
+    # Function to plot average profit by category
+    df = pd.read_sql("SELECT * FROM menu", conn)
+    df.columns = df.columns.str.lower()
+    avg_profits = df.groupby('item_category')['sale_price_usd', 'cost_of_goods_usd'].mean().reset_index()
+    avg_profits['profit'] = avg_profits['sale_price_usd'] - avg_profits['cost_of_goods_usd']
+    fig = go.Figure([go.Bar(x=avg_profits['item_category'], y=avg_profits['profit'])])
+    fig.update_layout(title="Average Profit by Category", xaxis_title="Category", yaxis_title="Average Profit (USD)")
+    
+    return fig
+
+    return fig
