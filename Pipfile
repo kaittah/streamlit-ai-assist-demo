@@ -10,18 +10,7 @@ name = "testpypi"
 
 [packages]
 streamlit = "*"
-plotly = "*"
-openai = "*"
-replicate = "*"
-transformers = "*"
-scipy = "*"
-pydantic = "*"
-requests = "*"
-pygithub = "*"
-sqlalchemy = "==1.4"
-snowflake-sqlalchemy = "*"
-snowflake-snowpark-python = "*"
-streamlit-ai-assist = {version = "==0.0.2", index = "testpypi"}
+streamlit-ai-assist = {version = "==0.1.1", index = "testpypi"}
 
 [dev-packages]
 ipykernel = "*"
