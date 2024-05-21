@@ -31,3 +31,13 @@ def plot_hired_employees(conn):
     hires_per_month = df_employees.groupby('hiremonth').size().reset_index(name='Count')
     fig = px.line(hires_per_month, x='hiremonth', y='Count', title='Number of New Hires')
     return fig
+
+def plot_menu_type_distribution(conn):
+    # Function to plot distribution of menu types
+    dataframe = pd.read_sql("SELECT * FROM menu", conn)
+    dataframe.columns = dataframe.columns.str.lower()
+    menu_type_counts = dataframe['menu_type'].value_counts()
+    fig = go.Figure(data=[go.Pie(labels=menu_type_counts.index, values=menu_type_counts.values)])
+    fig.update_layout(title="Distribution of Menu Types")
+    return fig
+                                 
