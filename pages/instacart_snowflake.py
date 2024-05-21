@@ -8,5 +8,6 @@ streamlit_ai_assist(
     graphing_import_path=f"graphing.{DATABASE_NAME}",
     database_name=DATABASE_NAME,
     general_description="Instacart's grocery basket dataset",
+    mode="search",
     key="foo_3"
 )
