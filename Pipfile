@@ -10,7 +10,7 @@ name = "testpypi"
 
 [packages]
 streamlit = "*"
-streamlit-ai-assist = {version = "==0.1.1", index = "testpypi"}
+streamlit-ai-assist = "==0.1.1"
 
 [dev-packages]
 ipykernel = "*"
