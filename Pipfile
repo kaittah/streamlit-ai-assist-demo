@@ -3,6 +3,11 @@ url = "https://pypi.org/simple"
 verify_ssl = true
 name = "pypi"
 
+[[source]]
+url = "https://test.pypi.org/simple/"
+verify_ssl = true
+name = "testpypi"
+
 [packages]
 streamlit = "*"
 plotly = "*"
@@ -16,6 +21,7 @@ pygithub = "*"
 sqlalchemy = "==1.4"
 snowflake-sqlalchemy = "*"
 snowflake-snowpark-python = "*"
+streamlit-ai-assist = {version = "==0.0.2", index = "testpypi"}
 
 [dev-packages]
 ipykernel = "*"
